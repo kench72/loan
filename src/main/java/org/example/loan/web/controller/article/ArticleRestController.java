@@ -1,5 +1,6 @@
 package org.example.loan.web.controller.article;
 
+import lombok.RequiredArgsConstructor;
 import org.example.loan.service.article.ArticleService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,13 +9,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
+@RequiredArgsConstructor
 public class ArticleRestController {
 
     private final ArticleService _articleService;
-
-    public ArticleRestController(ArticleService articleService) {
-        _articleService = articleService;
-    }
 
     // GET /articles/1
     @GetMapping("/articles/{id}")
