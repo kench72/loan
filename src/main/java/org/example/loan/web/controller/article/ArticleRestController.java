@@ -7,8 +7,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDateTime;
-
 @RestController
 public class ArticleRestController {
 
@@ -16,7 +14,7 @@ public class ArticleRestController {
 
     // GET /articles/1
     @GetMapping("/articles/{id}")
-    public ArticleDto showAritcle(@PathVariable("id") long id) {
+    public ArticleDto showArticle(@PathVariable("id") long id) {
 
         return _articleService.findById(id) // Optional<ArticleEntity>
                 .map(ArticleDto::from) // Optional<ArticleDTO>
