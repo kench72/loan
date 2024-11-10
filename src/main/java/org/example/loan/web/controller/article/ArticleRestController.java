@@ -10,7 +10,11 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 public class ArticleRestController {
 
-    private final ArticleService _articleService = new ArticleService();
+    private final ArticleService _articleService;
+
+    public ArticleRestController(ArticleService articleService) {
+        _articleService = articleService;
+    }
 
     // GET /articles/1
     @GetMapping("/articles/{id}")
