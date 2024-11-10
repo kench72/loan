@@ -18,20 +18,8 @@ public class ArticleRestController {
     @GetMapping("/articles/{id}")
     public ArticleDto showAritcle(@PathVariable("id") long id) {
 
-         var dto =  _articleService.findById(id) // Optional<ArticleEntity>
-                // map 変換・写像
-                .map(entity ->
-                     new ArticleDto(
-                            enttiy.id(),
-                            enttiy.title(),
-                            enttiy.contents(),
-                            enttiy.createdAt(),
-                            enttiy.updatedAt()
-                    )
-                ) // Optional<ArticleDTO>
-                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND));
-
-        // AritcleDTO
-        return dto;
+        return _articleService.findById(id) // Optional<ArticleEntity>
+                .map(ArticleDto::from) // Optional<ArticleDTO>
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)); // AritcleDTO
     }
 }
