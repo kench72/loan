@@ -19,19 +19,20 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((authorize) -> authorize
-                        .anyRequest().authenticated()
-                )
-                //.httpBasic(Customizer.withDefaults()) basic認証は使わない
-                .formLogin(Customizer.withDefaults());
+                            .requestMatchers("/articles/**").permitAll()
+                            .anyRequest().authenticated()
+                    )
+                    //.httpBasic(Customizer.withDefaults()) basic認証は使わない
+                    .formLogin(Customizer.withDefaults());
 
-        return http.build();
-    }
+            return http.build();
+        }
 
-    /// user情報を取得するサービス
-    /// user情報を持ってくるサービスをUserDetailsServiceという
-    @Bean
-    public UserDetailsService userDetailsService() {
-        UserDetails userDetails = User.withDefaultPasswordEncoder()
+        /// user情報を取得するサービス
+        /// user情報を持ってくるサービスをUserDetailsServiceという
+        @Bean
+        public UserDetailsService userDetailsService() {
+            UserDetails userDetails = User.withDefaultPasswordEncoder()
                 .username("user")
                 .password("password")
                 .roles("USER")
