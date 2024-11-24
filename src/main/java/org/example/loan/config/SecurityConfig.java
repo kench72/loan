@@ -3,7 +3,6 @@ package org.example.loan.config;
 import org.example.loan.web.filter.JsonUsernamePasswordAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
@@ -16,6 +15,8 @@ import org.springframework.security.web.authentication.session.ChangeSessionIdAu
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -28,7 +29,11 @@ public class SecurityConfig {
             , SessionAuthenticationStrategy sessionAuthenticationStrategy
     ) throws Exception {
         http
-                .csrf(csrf -> csrf.ignoringRequestMatchers("/login"))
+                //.csrf(csrf -> csrf.ignoringRequestMatchers("/login"))
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                        .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
+                )
                 .addFilterAt(
                         new JsonUsernamePasswordAuthenticationFilter(
                                 securityContextRepository,
@@ -38,11 +43,11 @@ public class SecurityConfig {
                 )
                 .securityContext(context -> context.securityContextRepository(securityContextRepository))
                 .authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers("/").permitAll()
                         .requestMatchers("/articles/**").permitAll()
                         .anyRequest().authenticated()
-                )
-                //.httpBasic(Customizer.withDefaults()) basic認証は使わない
-                .formLogin(Customizer.withDefaults());
+                );
+                //.formLogin(Customizer.withDefaults());
 
         return http.build();
     }
