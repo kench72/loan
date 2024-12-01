@@ -30,8 +30,16 @@ public class SecurityConfig {
             HttpSecurity http
             , SecurityContextRepository securityContextRepository
             , SessionAuthenticationStrategy sessionAuthenticationStrategy
+<<<<<<< Updated upstream
             , AuthenticationManager authenticationManager
             , ObjectMapper objectMapper
+=======
+<<<<<<< HEAD
+=======
+            , AuthenticationManager authenticationManager
+            , ObjectMapper objectMapper
+>>>>>>> e04c9f4 (ObjectMapperはDI経由で取得。)
+>>>>>>> Stashed changes
     ) throws Exception {
         http
                 //.csrf(csrf -> csrf.ignoringRequestMatchers("/login"))
@@ -42,9 +50,19 @@ public class SecurityConfig {
                 .addFilterAt(
                         new JsonUsernamePasswordAuthenticationFilter(
                                 securityContextRepository,
+<<<<<<< Updated upstream
                                 sessionAuthenticationStrategy,
                                 authenticationManager,
                                 objectMapper
+=======
+<<<<<<< HEAD
+                                sessionAuthenticationStrategy
+=======
+                                sessionAuthenticationStrategy,
+                                authenticationManager,
+                                objectMapper
+>>>>>>> e04c9f4 (ObjectMapperはDI経由で取得。)
+>>>>>>> Stashed changes
                         ),
                         UsernamePasswordAuthenticationFilter.class
                 )
