@@ -16,10 +16,13 @@ import java.io.IOException;
 
 public class JsonUsernamePasswordAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
+    private final ObjectMapper _objectMapper;
+
     public JsonUsernamePasswordAuthenticationFilter(
             SecurityContextRepository securityContextRepository
             , SessionAuthenticationStrategy sessionAuthenticationStrategy
             , AuthenticationManager authenticationManager
+            , ObjectMapper objectMapper
     ) {
         super();
         setSecurityContextRepository(securityContextRepository);
@@ -31,6 +34,8 @@ public class JsonUsernamePasswordAuthenticationFilter extends UsernamePasswordAu
         setAuthenticationFailureHandler((req, resp, auth) -> {
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         });
+
+        _objectMapper = objectMapper;
     }
 
     @Override
@@ -41,11 +46,10 @@ public class JsonUsernamePasswordAuthenticationFilter extends UsernamePasswordAu
 //            throw new AuthenticationServiceException("Authentication method not supported: " + request.getMethod());
 //        }
 
-        var objectMapper = new ObjectMapper();
         LoginRequest jsonRequest;
 
         try {
-            jsonRequest = objectMapper.readValue(request.getInputStream(), LoginRequest.class);
+            jsonRequest = _objectMapper.readValue(request.getInputStream(), LoginRequest.class);
         } catch (IOException e) {
             throw new AuthenticationServiceException("failed to read request as json", e);
         }

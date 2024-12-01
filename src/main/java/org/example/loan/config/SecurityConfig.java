@@ -1,5 +1,6 @@
 package org.example.loan.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.loan.web.filter.JsonUsernamePasswordAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,6 +34,7 @@ public class SecurityConfig {
             , SecurityContextRepository securityContextRepository
             , SessionAuthenticationStrategy sessionAuthenticationStrategy
             , AuthenticationManager authenticationManager
+            , ObjectMapper objectMapper
     ) throws Exception {
         http
                 //.csrf(csrf -> csrf.ignoringRequestMatchers("/login"))
@@ -44,7 +46,8 @@ public class SecurityConfig {
                         new JsonUsernamePasswordAuthenticationFilter(
                                 securityContextRepository,
                                 sessionAuthenticationStrategy,
-                                authenticationManager
+                                authenticationManager,
+                                objectMapper
                         ),
                         UsernamePasswordAuthenticationFilter.class
                 )
