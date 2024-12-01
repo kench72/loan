@@ -3,11 +3,16 @@ package org.example.loan.config;
 import org.example.loan.web.filter.JsonUsernamePasswordAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -27,6 +32,7 @@ public class SecurityConfig {
             HttpSecurity http
             , SecurityContextRepository securityContextRepository
             , SessionAuthenticationStrategy sessionAuthenticationStrategy
+            , AuthenticationManager authenticationManager
     ) throws Exception {
         http
                 //.csrf(csrf -> csrf.ignoringRequestMatchers("/login"))
@@ -37,7 +43,8 @@ public class SecurityConfig {
                 .addFilterAt(
                         new JsonUsernamePasswordAuthenticationFilter(
                                 securityContextRepository,
-                                sessionAuthenticationStrategy
+                                sessionAuthenticationStrategy,
+                                authenticationManager
                         ),
                         UsernamePasswordAuthenticationFilter.class
                 )
@@ -47,7 +54,7 @@ public class SecurityConfig {
                         .requestMatchers("/articles/**").permitAll()
                         .anyRequest().authenticated()
                 );
-                //.formLogin(Customizer.withDefaults());
+        //.formLogin(Customizer.withDefaults());
 
         return http.build();
     }
@@ -67,17 +74,39 @@ public class SecurityConfig {
         return new ChangeSessionIdAuthenticationStrategy();
     }
 
+    @Bean
+    public AuthenticationManager authenticationManager(
+            PasswordEncoder passwordEncoder,
+            UserDetailsService userDetailsService
+    ) {
+
+        var provider = new DaoAuthenticationProvider();
+        provider.setPasswordEncoder(passwordEncoder);
+        provider.setUserDetailsService(userDetailsService);
+
+        // ProviderManagerはAuthenticationManagerの実装クラス
+        // Providerを詰めてAuthenticationManagerに入れる。
+        return new ProviderManager(provider);
+    }
+
     /// user情報を取得するサービス
     /// user情報を持ってくるサービスをUserDetailsServiceという
     @Bean
     public UserDetailsService userDetailsService() {
-        UserDetails userDetails = User.withDefaultPasswordEncoder()
+        // UserDetails userDetails = User.withDefaultPasswordEncoder()
+        UserDetails userDetails = User.builder()
                 .username("user")
                 .password("password")
                 .roles("USER")
                 .build();
 
+        // ダミー実装：起動するたびに上記ダミーのユーザーをinMemoryに追加
         return new InMemoryUserDetailsManager(userDetails);
     }
 
+    @Bean
+    public PasswordEncoder passwordEncoder()
+    {
+        return NoOpPasswordEncoder.getInstance();
+    }
 }
