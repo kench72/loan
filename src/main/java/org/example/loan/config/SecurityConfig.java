@@ -12,10 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-<<<<<<< HEAD
-=======
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
->>>>>>> 008d327 (AuthenticationManager経由で認証情報を取得する。)
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.session.ChangeSessionIdAuthenticationStrategy;
@@ -109,49 +106,39 @@ public class SecurityConfig {
         return new HttpSessionSecurityContextRepository();
     }
 
+    @Bean
+    public SessionAuthenticationStrategy sessionAuthenticationStrategy() {
+        return new ChangeSessionIdAuthenticationStrategy();
+    }
+
+    public PasswordEncoder passwordEncoder()
+    {
+        return NoOpPasswordEncoder.getInstance();
+    }
+    @Bean
+    public AuthenticationManager authenticationManager(
+            PasswordEncoder passwordEncoder,
+            UserDetailsService userDetailsService
+    ) {
+        var provider = new DaoAuthenticationProvider();
+        provider.setPasswordEncoder(passwordEncoder);
+        provider.setUserDetailsService(userDetailsService);
+        return new ProviderManager(provider);
+    }
+
+    // SecurityContextRepositoryのBean登録
+    // HttpSessionSecurityContextRepositoryをSecurityContextRepositoryという型でBean登録する
+    @Bean
+    public SecurityContextRepository securityContextRepository() {
+        return new HttpSessionSecurityContextRepository();
+    }
+
     // SessionAuthenticationStrategyのBean登録
     // ChangeSessionIdAuthenticationStrategyをSessionAuthenticationStrategyという型でBean登録する
     // Bean登録された型はsecurityFilterChainの引数に注入してくれます（=Bean取得）
     @Bean
     public SessionAuthenticationStrategy sessionAuthenticationStrategy() {
         return new ChangeSessionIdAuthenticationStrategy();
-    }
-
-<<<<<<< HEAD
-    @Bean
-    public PasswordEncoder passwordEncoder()
-    {
-        return NoOpPasswordEncoder.getInstance();
-    }
-=======
-    @Bean
-    public AuthenticationManager authenticationManager(
-            PasswordEncoder passwordEncoder,
-            UserDetailsService userDetailsService
-    ) {
-
-        var provider = new DaoAuthenticationProvider();
-        provider.setPasswordEncoder(passwordEncoder);
-        provider.setUserDetailsService(userDetailsService);
-
-        // ProviderManagerはAuthenticationManagerの実装クラス
-        // Providerを詰めてAuthenticationManagerに入れる。
-        return new ProviderManager(provider);
-    }
-
-    /// user情報を取得するサービス
-    /// user情報を持ってくるサービスをUserDetailsServiceという
-    @Bean
-    public UserDetailsService userDetailsService() {
-        // UserDetails userDetails = User.withDefaultPasswordEncoder()
-        UserDetails userDetails = User.builder()
-                .username("user")
-                .password("password")
-                .roles("USER")
-                .build();
-
-        // ダミー実装：起動するたびに上記ダミーのユーザーをinMemoryに追加
-        return new InMemoryUserDetailsManager(userDetails);
     }
 
     @Bean
