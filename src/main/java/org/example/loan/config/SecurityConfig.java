@@ -12,6 +12,10 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+<<<<<<< HEAD
+=======
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+>>>>>>> 008d327 (AuthenticationManager経由で認証情報を取得する。)
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.session.ChangeSessionIdAuthenticationStrategy;
@@ -30,6 +34,7 @@ public class SecurityConfig {
             HttpSecurity http
             , SecurityContextRepository securityContextRepository
             , SessionAuthenticationStrategy sessionAuthenticationStrategy
+<<<<<<< HEAD
 <<<<<<< Updated upstream
             , AuthenticationManager authenticationManager
             , ObjectMapper objectMapper
@@ -40,6 +45,9 @@ public class SecurityConfig {
             , ObjectMapper objectMapper
 >>>>>>> e04c9f4 (ObjectMapperはDI経由で取得。)
 >>>>>>> Stashed changes
+=======
+            , AuthenticationManager authenticationManager
+>>>>>>> 008d327 (AuthenticationManager経由で認証情報を取得する。)
     ) throws Exception {
         http
                 //.csrf(csrf -> csrf.ignoringRequestMatchers("/login"))
@@ -50,6 +58,7 @@ public class SecurityConfig {
                 .addFilterAt(
                         new JsonUsernamePasswordAuthenticationFilter(
                                 securityContextRepository,
+<<<<<<< HEAD
 <<<<<<< Updated upstream
                                 sessionAuthenticationStrategy,
                                 authenticationManager,
@@ -63,6 +72,10 @@ public class SecurityConfig {
                                 objectMapper
 >>>>>>> e04c9f4 (ObjectMapperはDI経由で取得。)
 >>>>>>> Stashed changes
+=======
+                                sessionAuthenticationStrategy,
+                                authenticationManager
+>>>>>>> 008d327 (AuthenticationManager経由で認証情報を取得する。)
                         ),
                         UsernamePasswordAuthenticationFilter.class
                 )
@@ -104,9 +117,47 @@ public class SecurityConfig {
         return new ChangeSessionIdAuthenticationStrategy();
     }
 
+<<<<<<< HEAD
     @Bean
     public PasswordEncoder passwordEncoder()
     {
         return NoOpPasswordEncoder.getInstance();
     }
+=======
+    @Bean
+    public AuthenticationManager authenticationManager(
+            PasswordEncoder passwordEncoder,
+            UserDetailsService userDetailsService
+    ) {
+
+        var provider = new DaoAuthenticationProvider();
+        provider.setPasswordEncoder(passwordEncoder);
+        provider.setUserDetailsService(userDetailsService);
+
+        // ProviderManagerはAuthenticationManagerの実装クラス
+        // Providerを詰めてAuthenticationManagerに入れる。
+        return new ProviderManager(provider);
+    }
+
+    /// user情報を取得するサービス
+    /// user情報を持ってくるサービスをUserDetailsServiceという
+    @Bean
+    public UserDetailsService userDetailsService() {
+        // UserDetails userDetails = User.withDefaultPasswordEncoder()
+        UserDetails userDetails = User.builder()
+                .username("user")
+                .password("password")
+                .roles("USER")
+                .build();
+
+        // ダミー実装：起動するたびに上記ダミーのユーザーをinMemoryに追加
+        return new InMemoryUserDetailsManager(userDetails);
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder()
+    {
+        return NoOpPasswordEncoder.getInstance();
+    }
+>>>>>>> 008d327 (AuthenticationManager経由で認証情報を取得する。)
 }

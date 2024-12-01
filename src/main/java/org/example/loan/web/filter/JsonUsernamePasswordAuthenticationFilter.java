@@ -22,7 +22,10 @@ public class JsonUsernamePasswordAuthenticationFilter extends UsernamePasswordAu
             SecurityContextRepository securityContextRepository
             , SessionAuthenticationStrategy sessionAuthenticationStrategy
             , AuthenticationManager authenticationManager
+<<<<<<< HEAD
             , ObjectMapper objectMapper
+=======
+>>>>>>> 008d327 (AuthenticationManager経由で認証情報を取得する。)
     ) {
         super();
         setSecurityContextRepository(securityContextRepository);
@@ -46,10 +49,18 @@ public class JsonUsernamePasswordAuthenticationFilter extends UsernamePasswordAu
 //            throw new AuthenticationServiceException("Authentication method not supported: " + request.getMethod());
 //        }
 
+<<<<<<< HEAD
         LoginRequest jsonRequest;
 
         try {
             jsonRequest = _objectMapper.readValue(request.getInputStream(), LoginRequest.class);
+=======
+        var objectMapper = new ObjectMapper();
+        LoginRequest jsonRequest;
+
+        try {
+            jsonRequest = objectMapper.readValue(request.getInputStream(), LoginRequest.class);
+>>>>>>> 008d327 (AuthenticationManager経由で認証情報を取得する。)
         } catch (IOException e) {
             throw new AuthenticationServiceException("failed to read request as json", e);
         }
