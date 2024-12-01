@@ -9,12 +9,9 @@ import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.session.ChangeSessionIdAuthenticationStrategy;
@@ -62,6 +59,18 @@ public class SecurityConfig {
         return http.build();
     }
 
+
+    @Bean
+    public AuthenticationManager authenticationManager(
+            PasswordEncoder passwordEncoder,
+            UserDetailsService userDetailsService
+    ) {
+        var provider = new DaoAuthenticationProvider();
+        provider.setPasswordEncoder(passwordEncoder);
+        provider.setUserDetailsService(userDetailsService);
+        return new ProviderManager(provider);
+    }
+
     // SecurityContextRepositoryのBean登録
     // HttpSessionSecurityContextRepositoryをSecurityContextRepositoryという型でBean登録する
     @Bean
@@ -75,36 +84,6 @@ public class SecurityConfig {
     @Bean
     public SessionAuthenticationStrategy sessionAuthenticationStrategy() {
         return new ChangeSessionIdAuthenticationStrategy();
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(
-            PasswordEncoder passwordEncoder,
-            UserDetailsService userDetailsService
-    ) {
-
-        var provider = new DaoAuthenticationProvider();
-        provider.setPasswordEncoder(passwordEncoder);
-        provider.setUserDetailsService(userDetailsService);
-
-        // ProviderManagerはAuthenticationManagerの実装クラス
-        // Providerを詰めてAuthenticationManagerに入れる。
-        return new ProviderManager(provider);
-    }
-
-    /// user情報を取得するサービス
-    /// user情報を持ってくるサービスをUserDetailsServiceという
-    @Bean
-    public UserDetailsService userDetailsService() {
-        // UserDetails userDetails = User.withDefaultPasswordEncoder()
-        UserDetails userDetails = User.builder()
-                .username("user")
-                .password("password")
-                .roles("USER")
-                .build();
-
-        // ダミー実装：起動するたびに上記ダミーのユーザーをinMemoryに追加
-        return new InMemoryUserDetailsManager(userDetails);
     }
 
     @Bean
